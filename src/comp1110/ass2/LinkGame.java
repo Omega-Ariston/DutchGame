@@ -1,5 +1,8 @@
 package comp1110.ass2;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * This class provides the text interface for the Link Game
  *
@@ -18,9 +21,15 @@ public class LinkGame {
      * @param piecePlacement A string describing a piece placement
      * @return True if the piece placement is well-formed
      */
-    static boolean isPiecePlacementWellFormed(String piecePlacement) {
+    private static boolean isPiecePlacementWellFormed(String piecePlacement) {
         // FIXME Task 3: determine whether a piece placement is well-formed
-        return false;
+        return piecePlacement.length()==3 &&
+                piecePlacement.charAt(0)>='A' &&
+                piecePlacement.charAt(0)<='X' &&
+                piecePlacement.charAt(1)>='A' &&
+                piecePlacement.charAt(1)<='L' &&
+                piecePlacement.charAt(2)>='A' &&
+                piecePlacement.charAt(2)<='L';
     }
 
     /**
@@ -34,8 +43,19 @@ public class LinkGame {
      */
     static boolean isPlacementWellFormed(String placement) {
         // FIXME Task 4: determine whether a placement is well-formed
-        String foo;
-        return false;
+        int l = placement.length();
+        if(l%3!=0 || l>36 || l<3)
+            return false;
+        char[] element = placement.toCharArray();
+        Set<Character> appeared = new HashSet<>();
+        for (int i = 0; i < l; i+=3) {
+            if(appeared.contains(element[i+1]))
+                return false;
+            if(!isPiecePlacementWellFormed(placement.substring(i, i+3)))
+                return false;
+            appeared.add(element[i+1]);
+        }
+        return true;
     }
 
     /**
