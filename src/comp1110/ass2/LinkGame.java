@@ -70,6 +70,7 @@ public class LinkGame {
      */
     static int[] getPegsForPiecePlacement(String piecePlacement) {
         // FIXME Task 6: determine the pegs touched by a piece placement
+
         return null;
     }
 
