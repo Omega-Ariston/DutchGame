@@ -10,6 +10,7 @@ public class Piece {
     int node2;  //node2的开口情况
     int peg;    //piece的形状，1为该位置有node，0为该位置无node
     int place;  //棋子位置
+
     public Piece(String piece) {
         place = piece.charAt(0)-'A';
         initializePiece(piece.charAt(1),piece.charAt(2));

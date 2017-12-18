@@ -57,17 +57,17 @@ public class LinkGame {
         if(l%3!=0 || l>36 || l<3)
             return false;
         char[] element = placement.toCharArray();
-        Set<Character> appeared_piece = new HashSet<>();
+        int appeared_piece = 0;
         for (int i = 0; i < l; i+=3) {
-            if(appeared_piece.contains(element[i+1]) ||
+            if(((appeared_piece>>(element[i+1]-'A'))&1)==1 ||
                     !isPiecePlacementWellFormed(element[i], element[i+1], element[i+2]))
                 return false;
-            appeared_piece.add(element[i+1]);
+            appeared_piece |= 1<<(element[i+1]-'A');
         }
         return true;
     }
 
-    /** JFI JEB
+    /**
      * Return a array of peg locations according to which pegs the given piece placement touches.
      * The values in the array should be ordered according to the links that constitute the
      * piece.
@@ -161,6 +161,20 @@ public class LinkGame {
             }
         }
         return true;
+    }
+
+    public static String getLeft(String s){
+        int store = 0;
+        for(int i=s.length()-1; i>=0;i--){
+            store |= 1<<(s.charAt(i)-65);
+        }
+        StringBuilder sb = new StringBuilder("");
+        for(int i=0; i<26; i++){
+            if((store&1)==0)
+                sb.append((char)('A'+i));
+            store>>=1;
+        }
+        return sb.toString();
     }
 
     /**
