@@ -1,11 +1,15 @@
 package comp1110.ass2;
 
 public class Piece {
-    int[] nodes = new int[3]; //[node1, origin, node2]
-    int node1;
-    int node2;
-    int peg;
-    int place;
+
+    //用一个7位二进制码表示一个node的开口情况，0到5位表示其周围6个方向的开闭口，第6位表示其自身是否为环状
+
+    int[] nodes = new int[3]; //nodes中存放每个node的开口情况，1为闭口，0为开口
+                              // 顺序为[node1, origin, node2]
+    int node1;  //node1的开口情况
+    int node2;  //node2的开口情况
+    int peg;    //piece的形状，1为该位置有node，0为该位置无node
+    int place;  //棋子位置
     public Piece(String piece) {
         place = piece.charAt(0)-'A';
         initializePiece(piece.charAt(1),piece.charAt(2));
@@ -129,11 +133,15 @@ public class Piece {
         node1 = rotate_node(node1, rotation);
         node2 = rotate_node(node2, rotation);
     }
+
+    //将node以水平中心线为轴上下翻转
     final int flip(int i){
         i = swap(i, 0, 2);
         i = swap(i, 3, 5);
         return i;
     }
+
+    //将棋子的节点附着情况上下翻转
     final int flip_node(int i){
         switch(i){
             case 1:
@@ -152,18 +160,13 @@ public class Piece {
                 return -1;
         }
     }
-    public static void main(String[] args) {
-        Piece p1 = new Piece("HKJ");
-        Piece p2 = new Piece("OEA");
-        System.out.println(p1);
-        System.out.println(p2);
-        System.out.println(Integer.toBinaryString(rotate_clockwise(0b1110100, 3)));
-    }
+
+    //交换二进制码中的任意两位上的值
     final int swap(int i, int x, int y){
         return i & (~(1<<x)) & (~(1<<y)) | (((i>>y)&1)<<x) | (((i>>x)&1)<<y);
     }
 
-    //第七位不变，后六位旋转位移
+    //单个节点的第6位不变，1到5位旋转位移
     final static int rotate_clockwise(int goal, int n){
         int sign = goal&0b1000000;
         goal &= 0b111111;
@@ -174,6 +177,7 @@ public class Piece {
         return goal;
     }
 
+    //将节点附着情况旋转
     final int rotate_node(int goal, int n){return (goal+n)%6;}
 
     @Override
