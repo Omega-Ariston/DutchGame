@@ -8,8 +8,33 @@ public class Piece {
                               // 顺序为[node1, origin, node2]
     int node1;  //node1的开口情况
     int node2;  //node2的开口情况
-    int peg;    //piece的形状，1为该位置有node，0为该位置无node
     int place;  //棋子位置
+    int peg;    //piece的形状，1为该位置有node，0为该位置无node
+
+    static int[][] origin = new int[12][12];
+    static {
+        origin[0] = new int[]{
+                (1<<4) + (1<<1), (1<<4) + (1<<1), (1<<4) + (1<<1),
+                (1<<4) + 1, (1<<4) + 1, (1<<4) + 1, (1<<4) + 1, (1<<4) + 1,
+                (1<<4) + (1<<5), (1<<4) + (1<<5), (1<<4) + (1<<5), (1<<4) + (1<<5)
+        };
+        for (int i = 1; i < 12; i++) {
+            for (int j = 0; j < 6; j++) {
+                origin[i][j] = rotate_clockwise(origin[0][j],i);
+            }
+            for(int j=6; j<12;j++){
+                origin[i][j] = rotate_clockwise(flip(origin[0][j]),i%6);
+            }
+        }
+    }
+
+    public static boolean legalOrigin(int board, int o){
+        for (int i = 0; i < 12; i++) {
+            if((origin[i][o]&board)==0)
+                return true;
+        }
+        return false;
+    }
 
     public Piece(String piece) {
         place = piece.charAt(0)-'A';
@@ -135,15 +160,15 @@ public class Piece {
         node2 = rotate_node(node2, rotation);
     }
 
-    //将node以水平中心线为轴上下翻转
-    final int flip(int i){
+    //将棋子的节点附着情况上下翻转
+    final static int flip(int i){
         i = swap(i, 0, 2);
         i = swap(i, 3, 5);
         return i;
     }
 
-    //将棋子的节点附着情况上下翻转
-    final int flip_node(int i){
+    //将node以水平中心线为轴上下翻转
+    final static int flip_node(int i){
         switch(i){
             case 1:
             case 4:
@@ -163,7 +188,7 @@ public class Piece {
     }
 
     //交换二进制码中的任意两位上的值
-    final int swap(int i, int x, int y){
+    final static int swap(int i, int x, int y){
         return i & (~(1<<x)) & (~(1<<y)) | (((i>>y)&1)<<x) | (((i>>x)&1)<<y);
     }
 
@@ -179,7 +204,7 @@ public class Piece {
     }
 
     //将节点附着情况旋转
-    final int rotate_node(int goal, int n){return (goal+n)%6;}
+    final static int rotate_node(int goal, int n){return (goal+n)%6;}
 
     @Override
     public String toString(){

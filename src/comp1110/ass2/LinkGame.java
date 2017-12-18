@@ -1,8 +1,6 @@
 package comp1110.ass2;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * This class provides the text interface for the Link Game
@@ -182,10 +180,108 @@ public class LinkGame {
      *
      * @param placement  A valid piece placement string.
      * @return An array of strings, each describing a solution to the game given the
-     * starting point provied by placement.
+     * starting point provided by placement.
      */
     static String[] getSolutions(String placement) {
         // FIXME Task 10: determine all solutions to the game, given a particular starting placement
-        return null;
+        int appeared = 0;
+        ArrayList<String> output = new ArrayList<>();
+        for (int i = placement.length()-2; i >= 1 ; i-=3) {
+            appeared |= 1<<(placement.charAt(i)-'A');
+        }
+        addSolution(appeared,placement,output);
+        return output.toArray(new String[0]);
+    }
+    //H-OR-
+    //I-
+    //J-
+    //K-
+    //L-
+    static void addSolution(int appeared, String placement, ArrayList<String> solution){
+        if(placement.length()==36)
+            solution.add(placement);
+        char[] p = placement.toCharArray();
+        int[] board = boardGenerate(p);
+
+        for (int i = 0; i < 12; i++) {
+            if(((appeared>>i)&1)==0){
+                char nextPiece = (char)('A' + i);
+                //System.out.println(nextPiece);
+                int[] legalMove = legalPeg(board, nextPiece);
+                int j = 0;
+                while(j<24){
+                    if(legalMove[j]!=-1) {
+                        char bound = nextPiece == 'A' ? 'F' : 'L';
+                        for (char k = 'A'; k <= bound; k++) {
+                            String piece = "" + (char) ('A' + legalMove[j]) + nextPiece + (char) k;
+                            //System.out.println(piece);
+                            if (legalNextMove(board, piece)) {
+                                //System.out.println(placement+piece);
+                                appeared |= 1 << i;
+                                addSolution(appeared, placement + piece, solution);
+                            }
+                        }
+                    }
+                    j++;
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        String[] output = getSolutions("GAEWBABCDJDA");
+        for (String s:output
+             ) {
+            System.out.println(s);
+        }
+//        int[] board = boardGenerate("JABHBCBCGGDFIEKVFAFGGSHBXIA".toCharArray());
+//        System.out.println(Piece.legalOrigin(board['R'-'A'],'H'-'A'));
+//        System.out.println(Integer.toBinaryString(Piece.origin['C'-'A']['H'-'A']));
+//        int[] legalMove = legalPeg(board, 'H');
+//        for (int i:legalMove
+//             ) {
+//            System.out.println((char)('A'+i));
+//        }
+    }
+
+    static int[] boardGenerate(char[] p){
+        int l = p.length;
+        int[] board = new int[24];
+        for (int i = 0; i <l ; i+=3) {
+            Piece piece = new Piece(p[i], p[i+1], p[i+2]);
+            int[] pegs = getPegsForPiecePlacement(piece);
+            for(int j=0; j<3;j++){
+                int k = pegs[j];
+                if(board[k]==0)
+                    board[k] = piece.nodes[j];
+                else{
+                    board[k] += piece.nodes[j];
+                }
+            }
+        }
+        return board;
+    }
+
+    static int[] legalPeg(int[] board, char piece){
+        int[] output = new int[24];
+        int index = 0;
+        int origin = piece - 'A';
+        for (int i=0; i<24;i++) {
+            if(Piece.legalOrigin(board[i],origin))
+                output[index++]=i;
+            else
+                output[index++]=-1;
+        }
+        return output;
+    }
+
+    static boolean legalNextMove(int[] board, String piece){
+        Piece p = new Piece(piece);
+        int[] pegs = getPegsForPiecePlacement(p);
+        for (int i =0; i<3;i++) {
+            if(pegs[i]==-1 || (board[pegs[i]]&p.nodes[i])!=0)
+                return false;
+        }
+        return true;
     }
 }
