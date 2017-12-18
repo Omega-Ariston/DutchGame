@@ -32,6 +32,12 @@ public class LinkGame {
                 (piece=='A'? (orientation>='A') && (orientation<='F')
                 : (orientation>='A') && (orientation<='L'));
     }
+    public static boolean isPiecePlacementWellFormed(char origin, char piece, char orientation){
+        return (origin>='A') && (origin<='X') &&
+                (piece>='A') && (piece<='L') &&
+                (piece=='A'? (orientation>='A') && (orientation<='F')
+                        : (orientation>='A') && (orientation<='L'));
+    }
 
     /**
      * Determine whether a placement string is well-formed:
@@ -50,16 +56,17 @@ public class LinkGame {
         if(l%3!=0 || l>36 || l<3)
             return false;
         char[] element = placement.toCharArray();
-        Set<Character> appeared = new HashSet<>();
+        Set<Character> appeared_piece = new HashSet<>();
         for (int i = 0; i < l; i+=3) {
-            if(appeared.contains(element[i+1]) || !isPiecePlacementWellFormed(placement.substring(i, i+3)))
+            if(appeared_piece.contains(element[i+1]) ||
+                    !isPiecePlacementWellFormed(element[i], element[i+1], element[i+2]))
                 return false;
-            appeared.add(element[i+1]);
+            appeared_piece.add(element[i+1]);
         }
         return true;
     }
 
-    /**
+    /** JFI JEB
      * Return a array of peg locations according to which pegs the given piece placement touches.
      * The values in the array should be ordered according to the links that constitute the
      * piece.
@@ -74,10 +81,18 @@ public class LinkGame {
         Piece p = new Piece(piecePlacement);
         int origin = piecePlacement.charAt(0)-'A';
         int[] output = new int[3];
-        int[] neibor = getNeighborsOfOrigin(origin);
-        output[0] = neibor[p.node1];
+        int[] neighbor = getNeighborsOfOrigin(origin);
+        output[0] = neighbor[p.node1];
         output[1] = origin;
-        output[2] = neibor[p.node2];
+        output[2] = neighbor[p.node2];
+        return output;
+    }
+    public static int[] getPegsForPiecePlacement(Piece p) {
+        int[] output = new int[3];
+        int[] neighbor = getNeighborsOfOrigin(p.place);
+        output[0] = neighbor[p.node1];
+        output[1] = p.place;
+        output[2] = neighbor[p.node2];
         return output;
     }
 
@@ -95,23 +110,18 @@ public class LinkGame {
         output[4] -= 1;
         output[5] = output[0]-1;
 
-        //upper bound
-        if(row==0){
+        if(row==0){  //upper bound
             output[0] = -1;
             output[5] = -1;
-        }
-        //lower bound
-        if(row==3){
+        }else if(row==3){ //lower bound
             output[2] = -1;
             output[3] = -1;
         }
-        //left bound
-        if(col==0){
+
+        if(col==0){ //left bound
             output[4] = -1;
             output[3] = isOdd?output[3]:-1;
-        }
-        //right bound
-        if(col==5){
+        }else if(col==5){   //right bound
             output[1] = -1;
             output[0] = isOdd?-1:output[0];
         }
@@ -127,7 +137,29 @@ public class LinkGame {
      */
     static boolean isPlacementValid(String placement) {
         // FIXME Task 7: determine whether a placement is valid
-        return false;
+        if(!isPlacementWellFormed(placement))
+            return false;
+        char[] p = placement.toCharArray();
+        int l = p.length;
+        int[] board = new int[24];
+        for (int i = 0; i <l ; i+=3) {
+            Piece piece = new Piece(p[i], p[i+1], p[i+2]);
+            int[] pegs = getPegsForPiecePlacement(piece);
+            for(int j=0; j<3;j++){
+                int k = pegs[j];
+                if(k==-1) {
+                    return false;
+                }
+                if(board[k]==0)
+                    board[k] = piece.nodes[j];
+                else{
+                    if((board[k]&piece.nodes[j])!=0)
+                        return false;
+                    board[k] += piece.nodes[j];
+                }
+            }
+        }
+        return true;
     }
 
     /**
