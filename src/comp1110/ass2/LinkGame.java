@@ -21,15 +21,16 @@ public class LinkGame {
      * @param piecePlacement A string describing a piece placement
      * @return True if the piece placement is well-formed
      */
-    private static boolean isPiecePlacementWellFormed(String piecePlacement) {
+    public static boolean isPiecePlacementWellFormed(String piecePlacement) {
         // FIXME Task 3: determine whether a piece placement is well-formed
-        return piecePlacement.length()==3 &&
-                piecePlacement.charAt(0)>='A' &&
-                piecePlacement.charAt(0)<='X' &&
-                piecePlacement.charAt(1)>='A' &&
-                piecePlacement.charAt(1)<='L' &&
-                piecePlacement.charAt(2)>='A' &&
-                piecePlacement.charAt(2)<='L';
+        char origin = piecePlacement.charAt(0);
+        char piece = piecePlacement.charAt(1);
+        char orientation = piecePlacement.charAt(2);
+        return (piecePlacement.length()==3) &&
+                (origin>='A') && (origin<='X') &&
+                (piece>='A') && (piece<='L') &&
+                (piece=='A'? (orientation>='A') && (orientation<='F')
+                : (orientation>='A') && (orientation<='L'));
     }
 
     /**
@@ -41,17 +42,17 @@ public class LinkGame {
      * @param placement A string describing a placement of one or more pieces
      * @return True if the placement is well-formed
      */
-    static boolean isPlacementWellFormed(String placement) {
+    public static boolean isPlacementWellFormed(String placement) {
         // FIXME Task 4: determine whether a placement is well-formed
+        if(placement==null)
+            return false;
         int l = placement.length();
         if(l%3!=0 || l>36 || l<3)
             return false;
         char[] element = placement.toCharArray();
         Set<Character> appeared = new HashSet<>();
         for (int i = 0; i < l; i+=3) {
-            if(appeared.contains(element[i+1]))
-                return false;
-            if(!isPiecePlacementWellFormed(placement.substring(i, i+3)))
+            if(appeared.contains(element[i+1]) || !isPiecePlacementWellFormed(placement.substring(i, i+3)))
                 return false;
             appeared.add(element[i+1]);
         }
@@ -68,12 +69,54 @@ public class LinkGame {
      * @return An array of integers corresponding to the pegs which the piece placement touches,
      * listed in the normal order of links for that piece.
      */
-    static int[] getPegsForPiecePlacement(String piecePlacement) {
+    public static int[] getPegsForPiecePlacement(String piecePlacement) {
         // FIXME Task 6: determine the pegs touched by a piece placement
-
-        return null;
+        Piece p = new Piece(piecePlacement);
+        int origin = piecePlacement.charAt(0)-'A';
+        int[] output = new int[3];
+        int[] neibor = getNeighborsOfOrigin(origin);
+        output[0] = neibor[p.node1];
+        output[1] = origin;
+        output[2] = neibor[p.node2];
+        return output;
     }
 
+    private static int[] getNeighborsOfOrigin(int origin){
+        int[] output = new int[]{origin, origin, origin, origin, origin, origin};
+        int row = origin/6;
+        int col = origin%6;
+
+        //normal case
+        boolean isOdd = (row&1)==1;
+        output[0] -= isOdd?5:6;
+        output[1] += 1;
+        output[2] += isOdd?7:6;
+        output[3] = output[2]-1;
+        output[4] -= 1;
+        output[5] = output[0]-1;
+
+        //upper bound
+        if(row==0){
+            output[0] = -1;
+            output[5] = -1;
+        }
+        //lower bound
+        if(row==3){
+            output[2] = -1;
+            output[3] = -1;
+        }
+        //left bound
+        if(col==0){
+            output[4] = -1;
+            output[3] = isOdd?output[3]:-1;
+        }
+        //right bound
+        if(col==5){
+            output[1] = -1;
+            output[0] = isOdd?-1:output[0];
+        }
+        return output;
+    }
 
     /**
      * Determine whether a placement is valid.  To be valid, the placement must be well-formed
