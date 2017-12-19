@@ -229,11 +229,14 @@ public class LinkGame {
     }
 
     public static void main(String[] args) {
-        String[] output = getSolutions("JACUBACCG");
+        long start = System.nanoTime();
+        String[] output = getSolutions("JACUBACCGKDL");
+        long end = System.nanoTime();
         for (String s:output
              ) {
             System.out.println(s);
         }
+        System.out.println((end-start)/1000000.0 + "ms");
 //        int[] board = boardGenerate("JABHBCBCGGDFIEKVFAFGGSHBXIA".toCharArray());
 //        System.out.println(Piece.legalOrigin(board['R'-'A'],'H'-'A'));
 //        System.out.println(Integer.toBinaryString(Piece.origin['C'-'A']['H'-'A']));

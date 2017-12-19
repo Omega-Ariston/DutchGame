@@ -11,20 +11,27 @@ public class Piece {
     int place;  //棋子位置
     int peg;    //piece的形状，1为该位置有node，0为该位置无node
 
-    static int[][] origin = new int[12][12];
-    static Piece[][] pieces_Cached = new Piece[12][];
+    private static int[][] origin = new int[12][];
+    private static Piece[][] pieces_Cached = new Piece[12][];
+
+    //静态初始化块
     static {
-        origin[0] = new int[]{
-                (1<<4) + (1<<1), (1<<4) + (1<<1), (1<<4) + (1<<1),
-                (1<<4) + 1, (1<<4) + 1, (1<<4) + 1, (1<<4) + 1, (1<<4) + 1,
-                (1<<4) + (1<<5), (1<<4) + (1<<5), (1<<4) + (1<<5), (1<<4) + (1<<5)
-        };
+        origin[0] = new int[6];
+        for (int i = 1; i <12 ; i++) {
+            origin[i] = new int[12];
+        }
+        origin[0][0] = origin[1][0] = origin[2][0] = (1<<4) + (1<<1);
+        origin[3][0] = origin[4][0] = origin[5][0] = origin[6][0] = origin[7][0] = (1<<4) + 1;
+        origin[8][0] = origin[9][0] = origin[10][0]= origin[11][0]= (1<<4) + (1<<5);
+        for (int i = 1, base = origin[0][0]; i < 6; i++) {
+            origin[0][i] = rotate_clockwise(base,i);
+        }
         for (int i = 1; i < 12; i++) {
-            for (int j = 0; j < 6; j++) {
-                origin[i][j] = rotate_clockwise(origin[0][j],i);
+            for (int j = 1, base = origin[i][0]; j < 6; j++) {
+                origin[i][j] = rotate_clockwise(base, j);
             }
-            for(int j=6; j<12;j++){
-                origin[i][j] = rotate_clockwise(flip(origin[0][j]),i%6);
+            for (int j = 6, base = flip(origin[i][0]); j < 12; j++) {
+                origin[i][j] = rotate_clockwise(base, j%6);
             }
         }
         int index = 0;
@@ -50,23 +57,80 @@ public class Piece {
 
     public static boolean legalOrigin(int board, int o){
         for (int i = 0; i < 12; i++) {
-            if((origin[i][o]&board)==0)
+            if((origin[o][i]&board)==0)
                 return true;
         }
         return false;
     }
 
+    //公共访问实例获取器
     public static Piece getPiece(String placement){
         Piece output = pieces_Cached[placement.charAt(1)-'A'][placement.charAt(2)-'A'];
         output.place = placement.charAt(0)-'A';
         return output;
     }
+    //公共访问实例获取器
     public static Piece getPiece(char place, char piece, char orientation){
         Piece output = pieces_Cached[piece-'A'][orientation-'A'];
         output.place = place-'A';
         return output;
     }
 
+    //将棋子的节点附着情况上下翻转
+    private static int flip(int i){
+        i = swap(i, 0, 2);
+        i = swap(i, 3, 5);
+        return i;
+    }
+
+    //将node以水平中心线为轴上下翻转
+    private static int flip_node(int i){
+        switch(i){
+            case 1:
+            case 4:
+                return i;
+            case 3:
+                return 5;
+            case 5:
+                return 3;
+            case 0:
+                return 2;
+            case 2:
+                return 0;
+            default:
+                System.out.println("Something wrong happened in flip_node");
+                return -1;
+        }
+    }
+
+    //交换二进制码中的任意两位上的值
+    private static int swap(int i, int x, int y){
+        return i & (~(1<<x)) & (~(1<<y)) | (((i>>y)&1)<<x) | (((i>>x)&1)<<y);
+    }
+
+    //单个节点的第6位不变，1到5位旋转位移
+    private static int rotate_clockwise(int goal, int n){
+        int sign = goal&0b1000000;
+        goal &= 0b111111;
+        goal <<= n;
+        goal |= (goal>>>6);
+        goal &= 0b111111;
+        goal |= sign;
+        return goal;
+    }
+
+    //将节点附着情况旋转
+    private static int rotate_node(int goal, int n){return (goal+n)%6;}
+
+    @Override
+    public String toString(){
+        return "Peg: " + Integer.toBinaryString(peg) +
+                " node1: " + Integer.toBinaryString(nodes[0]) +
+                " origin: " + Integer.toBinaryString(nodes[1]) +
+                " node2: " + Integer.toBinaryString(nodes[2]);
+    }
+
+    //类初始化器
     private void initializePiece(char piece, char orientation){
         switch(piece){
             case 'A':
@@ -182,59 +246,4 @@ public class Piece {
         node1 = rotate_node(node1, rotation);
         node2 = rotate_node(node2, rotation);
     }
-
-    //将棋子的节点附着情况上下翻转
-    private static int flip(int i){
-        i = swap(i, 0, 2);
-        i = swap(i, 3, 5);
-        return i;
-    }
-
-    //将node以水平中心线为轴上下翻转
-    private static int flip_node(int i){
-        switch(i){
-            case 1:
-            case 4:
-                return i;
-            case 3:
-                return 5;
-            case 5:
-                return 3;
-            case 0:
-                return 2;
-            case 2:
-                return 0;
-            default:
-                System.out.println("Something wrong happened in flip_node");
-                return -1;
-        }
-    }
-
-    //交换二进制码中的任意两位上的值
-    private static int swap(int i, int x, int y){
-        return i & (~(1<<x)) & (~(1<<y)) | (((i>>y)&1)<<x) | (((i>>x)&1)<<y);
-    }
-
-    //单个节点的第6位不变，1到5位旋转位移
-    private static int rotate_clockwise(int goal, int n){
-        int sign = goal&0b1000000;
-        goal &= 0b111111;
-        goal <<= n;
-        goal |= (goal>>>6);
-        goal &= 0b111111;
-        goal |= sign;
-        return goal;
-    }
-
-    //将节点附着情况旋转
-    private static int rotate_node(int goal, int n){return (goal+n)%6;}
-
-    @Override
-    public String toString(){
-        return "Peg: " + Integer.toBinaryString(peg) +
-                " node1: " + Integer.toBinaryString(nodes[0]) +
-                " origin: " + Integer.toBinaryString(nodes[1]) +
-                " node2: " + Integer.toBinaryString(nodes[2]);
-    }
-
 }
