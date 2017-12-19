@@ -77,7 +77,7 @@ public class LinkGame {
      */
     public static int[] getPegsForPiecePlacement(String piecePlacement) {
         // FIXME Task 6: determine the pegs touched by a piece placement
-        Piece p = new Piece(piecePlacement);
+        Piece p = Piece.getPiece(piecePlacement);
         int origin = piecePlacement.charAt(0)-'A';
         int[] output = new int[3];
         int[] neighbor = getNeighborsOfOrigin(origin);
@@ -142,7 +142,7 @@ public class LinkGame {
         int l = p.length;
         int[] board = new int[24];
         for (int i = 0; i <l ; i+=3) {
-            Piece piece = new Piece(p[i], p[i+1], p[i+2]);
+            Piece piece = Piece.getPiece(p[i], p[i+1], p[i+2]);
             int[] pegs = getPegsForPiecePlacement(piece);
             for(int j=0; j<3;j++){
                 int k = pegs[j];
@@ -229,7 +229,7 @@ public class LinkGame {
     }
 
     public static void main(String[] args) {
-        String[] output = getSolutions("GAEWBABCDJDA");
+        String[] output = getSolutions("JACUBACCG");
         for (String s:output
              ) {
             System.out.println(s);
@@ -248,7 +248,7 @@ public class LinkGame {
         int l = p.length;
         int[] board = new int[24];
         for (int i = 0; i <l ; i+=3) {
-            Piece piece = new Piece(p[i], p[i+1], p[i+2]);
+            Piece piece = Piece.getPiece(p[i], p[i+1], p[i+2]);
             int[] pegs = getPegsForPiecePlacement(piece);
             for(int j=0; j<3;j++){
                 int k = pegs[j];
@@ -276,7 +276,7 @@ public class LinkGame {
     }
 
     static boolean legalNextMove(int[] board, String piece){
-        Piece p = new Piece(piece);
+        Piece p = Piece.getPiece(piece);
         int[] pegs = getPegsForPiecePlacement(p);
         for (int i =0; i<3;i++) {
             if(pegs[i]==-1 || (board[pegs[i]]&p.nodes[i])!=0)

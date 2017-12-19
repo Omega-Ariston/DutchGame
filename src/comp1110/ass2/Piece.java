@@ -12,6 +12,7 @@ public class Piece {
     int peg;    //piece的形状，1为该位置有node，0为该位置无node
 
     static int[][] origin = new int[12][12];
+    static Piece[][] pieces_Cached = new Piece[12][];
     static {
         origin[0] = new int[]{
                 (1<<4) + (1<<1), (1<<4) + (1<<1), (1<<4) + (1<<1),
@@ -26,6 +27,25 @@ public class Piece {
                 origin[i][j] = rotate_clockwise(flip(origin[0][j]),i%6);
             }
         }
+        int index = 0;
+        pieces_Cached[0] = new Piece[6];
+        for(char o = 'A'; o<='F'; o++){
+            pieces_Cached[0][index++] = new Piece('A', o);
+        }
+        index = 0;
+        for (char p = 'B'; p <= 'L'; p++) {
+            int num = p - 'A';
+            pieces_Cached[num] = new Piece[12];
+            for (char o = 'A'; o <='L' ; o++) {
+                pieces_Cached[num][index++] = new Piece(p,o);
+            }
+            index = 0;
+        }
+    }
+
+    //私有构造方法
+    private Piece(char piece, char orientation){
+        initializePiece(piece, orientation);
     }
 
     public static boolean legalOrigin(int board, int o){
@@ -36,15 +56,18 @@ public class Piece {
         return false;
     }
 
-    public Piece(String piece) {
-        place = piece.charAt(0)-'A';
-        initializePiece(piece.charAt(1),piece.charAt(2));
+    public static Piece getPiece(String placement){
+        Piece output = pieces_Cached[placement.charAt(1)-'A'][placement.charAt(2)-'A'];
+        output.place = placement.charAt(0)-'A';
+        return output;
     }
-    public Piece(char place, char piece, char orientation){
-        this.place = place-'A';
-        initializePiece(piece, orientation);
+    public static Piece getPiece(char place, char piece, char orientation){
+        Piece output = pieces_Cached[piece-'A'][orientation-'A'];
+        output.place = place-'A';
+        return output;
     }
-    public void initializePiece(char piece, char orientation){
+
+    private void initializePiece(char piece, char orientation){
         switch(piece){
             case 'A':
                 peg = (1<<4) + (1<<1);
@@ -161,14 +184,14 @@ public class Piece {
     }
 
     //将棋子的节点附着情况上下翻转
-    final static int flip(int i){
+    private static int flip(int i){
         i = swap(i, 0, 2);
         i = swap(i, 3, 5);
         return i;
     }
 
     //将node以水平中心线为轴上下翻转
-    final static int flip_node(int i){
+    private static int flip_node(int i){
         switch(i){
             case 1:
             case 4:
@@ -188,12 +211,12 @@ public class Piece {
     }
 
     //交换二进制码中的任意两位上的值
-    final static int swap(int i, int x, int y){
+    private static int swap(int i, int x, int y){
         return i & (~(1<<x)) & (~(1<<y)) | (((i>>y)&1)<<x) | (((i>>x)&1)<<y);
     }
 
     //单个节点的第6位不变，1到5位旋转位移
-    final static int rotate_clockwise(int goal, int n){
+    private static int rotate_clockwise(int goal, int n){
         int sign = goal&0b1000000;
         goal &= 0b111111;
         goal <<= n;
@@ -204,7 +227,7 @@ public class Piece {
     }
 
     //将节点附着情况旋转
-    final static int rotate_node(int goal, int n){return (goal+n)%6;}
+    private static int rotate_node(int goal, int n){return (goal+n)%6;}
 
     @Override
     public String toString(){
