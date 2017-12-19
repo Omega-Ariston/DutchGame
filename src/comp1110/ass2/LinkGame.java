@@ -1,6 +1,6 @@
 package comp1110.ass2;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * This class provides the text interface for the Link Game
@@ -9,6 +9,25 @@ import java.util.ArrayList;
  * (http://www.smartgames.eu/en/smartgames/iq-link)
  */
 public class LinkGame {
+
+    public static void main(String[] args) {
+        long start = System.nanoTime();
+        String[] output = getSolutions("JACUBACCGKDL");
+        long end = System.nanoTime();
+        for (String s:output
+                ) {
+            System.out.println(s);
+        }
+        System.out.println((end-start)/1000000.0 + "ms");
+//        int[] board = boardGenerate("JABHBCBCGGDFIEKVFAFGGSHBXIA".toCharArray());
+//        System.out.println(Piece.legalOrigin(board['R'-'A'],'H'-'A'));
+//        System.out.println(Integer.toBinaryString(Piece.origin['C'-'A']['H'-'A']));
+//        int[] legalMove = legalPeg(board, 'H');
+//        for (int i:legalMove
+//             ) {
+//            System.out.println((char)('A'+i));
+//        }
+    }
 
     /**
      * Determine whether a piece placement is well-formed according to the following:
@@ -31,7 +50,7 @@ public class LinkGame {
                 (piece=='A'? (orientation>='A') && (orientation<='F')
                 : (orientation>='A') && (orientation<='L'));
     }
-    public static boolean isPiecePlacementWellFormed(char origin, char piece, char orientation){
+    private static boolean isPiecePlacementWellFormed(char origin, char piece, char orientation){
         return (origin>='A') && (origin<='X') &&
                 (piece>='A') && (piece<='L') &&
                 (piece=='A'? (orientation>='A') && (orientation<='F')
@@ -86,7 +105,7 @@ public class LinkGame {
         output[2] = neighbor[p.node2];
         return output;
     }
-    public static int[] getPegsForPiecePlacement(Piece p) {
+    private static int[] getPegsForPiecePlacement(Piece p) {
         int[] output = new int[3];
         int[] neighbor = getNeighborsOfOrigin(p.place);
         output[0] = neighbor[p.node1];
@@ -161,19 +180,21 @@ public class LinkGame {
         return true;
     }
 
-    public static String getLeft(String s){
-        int store = 0;
-        for(int i=s.length()-1; i>=0;i--){
-            store |= 1<<(s.charAt(i)-65);
-        }
-        StringBuilder sb = new StringBuilder("");
-        for(int i=0; i<26; i++){
-            if((store&1)==0)
-                sb.append((char)('A'+i));
-            store>>=1;
-        }
-        return sb.toString();
-    }
+// --Commented out by Inspection START (12/19/2017 14:45):
+//    public static String getLeft(String s){
+//        int store = 0;
+//        for(int i=s.length()-1; i>=0;i--){
+//            store |= 1<<(s.charAt(i)-65);
+//        }
+//        StringBuilder sb = new StringBuilder("");
+//        for(int i=0; i<26; i++){
+//            if((store&1)==0)
+//                sb.append((char)('A'+i));
+//            store>>=1;
+//        }
+//        return sb.toString();
+//    }
+// --Commented out by Inspection STOP (12/19/2017 14:45)
 
     /**
      * Return an array of all solutions given a starting placement.
@@ -182,22 +203,18 @@ public class LinkGame {
      * @return An array of strings, each describing a solution to the game given the
      * starting point provided by placement.
      */
-    static String[] getSolutions(String placement) {
+    public static String[] getSolutions(String placement) {
         // FIXME Task 10: determine all solutions to the game, given a particular starting placement
         int appeared = 0;
-        ArrayList<String> output = new ArrayList<>();
+        HashSet<String> output = new HashSet<>();
         for (int i = placement.length()-2; i >= 1 ; i-=3) {
             appeared |= 1<<(placement.charAt(i)-'A');
         }
         addSolution(appeared,placement,output);
         return output.toArray(new String[0]);
     }
-    //H-OR-
-    //I-
-    //J-
-    //K-
-    //L-
-    static void addSolution(int appeared, String placement, ArrayList<String> solution){
+
+    private static void addSolution(int appeared, String placement, HashSet<String> solution){
         if(placement.length()==36)
             solution.add(placement);
         char[] p = placement.toCharArray();
@@ -213,7 +230,7 @@ public class LinkGame {
                     if(legalMove[j]!=-1) {
                         char bound = nextPiece == 'A' ? 'F' : 'L';
                         for (char k = 'A'; k <= bound; k++) {
-                            String piece = "" + (char) ('A' + legalMove[j]) + nextPiece + (char) k;
+                            String piece = "" + (char) ('A' + legalMove[j]) + nextPiece + k;
                             //System.out.println(piece);
                             if (legalNextMove(board, piece)) {
                                 //System.out.println(placement+piece);
@@ -228,26 +245,7 @@ public class LinkGame {
         }
     }
 
-    public static void main(String[] args) {
-        long start = System.nanoTime();
-        String[] output = getSolutions("JACUBACCGKDL");
-        long end = System.nanoTime();
-        for (String s:output
-             ) {
-            System.out.println(s);
-        }
-        System.out.println((end-start)/1000000.0 + "ms");
-//        int[] board = boardGenerate("JABHBCBCGGDFIEKVFAFGGSHBXIA".toCharArray());
-//        System.out.println(Piece.legalOrigin(board['R'-'A'],'H'-'A'));
-//        System.out.println(Integer.toBinaryString(Piece.origin['C'-'A']['H'-'A']));
-//        int[] legalMove = legalPeg(board, 'H');
-//        for (int i:legalMove
-//             ) {
-//            System.out.println((char)('A'+i));
-//        }
-    }
-
-    static int[] boardGenerate(char[] p){
+    private static int[] boardGenerate(char[] p){
         int l = p.length;
         int[] board = new int[24];
         for (int i = 0; i <l ; i+=3) {
@@ -265,7 +263,7 @@ public class LinkGame {
         return board;
     }
 
-    static int[] legalPeg(int[] board, char piece){
+    private static int[] legalPeg(int[] board, char piece){
         int[] output = new int[24];
         int index = 0;
         int origin = piece - 'A';
@@ -278,7 +276,7 @@ public class LinkGame {
         return output;
     }
 
-    static boolean legalNextMove(int[] board, String piece){
+    private static boolean legalNextMove(int[] board, String piece){
         Piece p = Piece.getPiece(piece);
         int[] pegs = getPegsForPiecePlacement(p);
         for (int i =0; i<3;i++) {

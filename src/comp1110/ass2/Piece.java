@@ -4,15 +4,15 @@ public class Piece {
 
     //用一个7位二进制码表示一个node的开口情况，0到5位表示其周围6个方向的开闭口，第6位表示其自身是否为环状
 
-    int[] nodes = new int[3]; //nodes中存放每个node的开口情况，1为闭口，0为开口
+    final int[] nodes = new int[3]; //nodes中存放每个node的开口情况，1为闭口，0为开口
                               // 顺序为[node1, origin, node2]
     int node1;  //node1的开口情况
     int node2;  //node2的开口情况
     int place;  //棋子位置
-    int peg;    //piece的形状，1为该位置有node，0为该位置无node
+    private int peg;    //piece的形状，1为该位置有node，0为该位置无node
 
-    private static int[][] origin = new int[12][];
-    private static Piece[][] pieces_Cached = new Piece[12][];
+    private static final int[][] origin = new int[12][];
+    private static final Piece[][] pieces_Cached = new Piece[12][]; //事先缓存好的Piece实例
 
     //静态初始化块
     static {
