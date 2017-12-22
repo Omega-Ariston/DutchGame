@@ -6,8 +6,8 @@ public class Piece {
 
     final int[] nodes = new int[3]; //nodes中存放每个node的开口情况，1为闭口，0为开口
                               // 顺序为[node1, origin, node2]
-    int node1;  //node1的开口情况
-    int node2;  //node2的开口情况
+    int node1;  //node1的开口位置
+    int node2;  //node2的开口位置
     int place;  //棋子位置
     private int peg;    //piece的形状，1为该位置有node，0为该位置无node
 

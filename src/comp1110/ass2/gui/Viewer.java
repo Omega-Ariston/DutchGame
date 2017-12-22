@@ -52,12 +52,9 @@ public class Viewer extends Application {
         textField = new TextField ();
         textField.setPrefWidth(300);
         Button button = new Button("Refresh");
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
+        button.setOnAction((e) ->{
                 makePlacement(textField.getText());
                 textField.clear();
-            }
         });
         HBox hb = new HBox();
         hb.getChildren().addAll(label1, textField, button);

@@ -12,21 +12,13 @@ public class LinkGame {
 
     public static void main(String[] args) {
         long start = System.nanoTime();
-        String[] output = getSolutions("JACUBACCGKDL");
+        String[] output = getSolutions("JAFXJAGKLHLE");
         long end = System.nanoTime();
         for (String s:output
                 ) {
             System.out.println(s);
         }
-        System.out.println((end-start)/1000000.0 + "ms");
-//        int[] board = boardGenerate("JABHBCBCGGDFIEKVFAFGGSHBXIA".toCharArray());
-//        System.out.println(Piece.legalOrigin(board['R'-'A'],'H'-'A'));
-//        System.out.println(Integer.toBinaryString(Piece.origin['C'-'A']['H'-'A']));
-//        int[] legalMove = legalPeg(board, 'H');
-//        for (int i:legalMove
-//             ) {
-//            System.out.println((char)('A'+i));
-//        }
+        System.out.println((end-start)/1000000 + " ms");
     }
 
     /**
@@ -153,7 +145,7 @@ public class LinkGame {
      * @param placement A placement string
      * @return True if the placement is valid
      */
-    static boolean isPlacementValid(String placement) {
+    public static boolean isPlacementValid(String placement) {
         // FIXME Task 7: determine whether a placement is valid
         if(!isPlacementWellFormed(placement))
             return false;
@@ -245,6 +237,7 @@ public class LinkGame {
         }
     }
 
+    //生成棋盘
     private static int[] boardGenerate(char[] p){
         int l = p.length;
         int[] board = new int[24];
@@ -263,12 +256,13 @@ public class LinkGame {
         return board;
     }
 
+    //返回当前棋子能下入的所有棋盘位置，不考虑棋子的节点和朝向，只考虑棋子中心点
     private static int[] legalPeg(int[] board, char piece){
         int[] output = new int[24];
         int index = 0;
         int origin = piece - 'A';
         for (int i=0; i<24;i++) {
-            if(Piece.legalOrigin(board[i],origin))
+            if(board[i]==0 || Piece.legalOrigin(board[i],origin))
                 output[index++]=i;
             else
                 output[index++]=-1;
@@ -276,6 +270,7 @@ public class LinkGame {
         return output;
     }
 
+    //判断棋子是否能下入棋盘指定位置
     private static boolean legalNextMove(int[] board, String piece){
         Piece p = Piece.getPiece(piece);
         int[] pegs = getPegsForPiecePlacement(p);
